@@ -1,0 +1,73 @@
+#!/bin/bash
+# nginx Startup script for the Nginx HTTP Server
+# chkconfig: - 85 15
+# config: /usr/local/nginx1.10/conf/nginx.conf
+#############################################
+
+#定义脚本需要用到各文件及路径
+nginxd=/usr/local/nginx/sbin/nginx
+nginx_config=/usr/local/nginx/conf/nginx.conf
+nginx_pid=/usr/local/nginx/logs/nginx.pid
+#定义默认返回值
+RETVAL=0
+#定义程序名，可以仿照此脚本编写其他启动管理脚本
+prog="nginx"
+
+# Start nginx daemons functions.
+start() {
+if [ -f $nginx_pid ] ; then
+echo -ne "\033[31m nginx already running....\033[0m\n"
+exit 1
+fi
+echo -ne "Starting $prog:\n"
+$nginxd -c ${nginx_config}
+RETVAL=$?
+[ $RETVAL = 0 ] && touch /var/lock/subsys/nginx
+}
+
+# Stop nginx daemons functions.
+stop() {
+if [ -f $nginx_pid ] ; then
+echo -ne "Stopping $prog:\n"
+$nginxd -s stop
+[ $RETVAL = 0 ] &&rm -f /var/lock/subsys/nginx
+else 
+echo -ne "Nginx is not running\n"
+fi
+}
+
+# reloadnginx service functions.
+reload() {
+echo -ne "Reloading $prog:\n "
+    $nginxd -s reload
+}
+# statusngnx service functions
+status() {
+if [ -f $nginx_pid ] ; then
+echo -ne "$prog is running\n"
+else
+echo -ne "$prog is stop\n"
+fi
+}
+case "$1" in
+start)
+start
+        ;;
+stop)
+stop
+        ;;
+reload)
+reload
+        ;;
+restart)
+stop
+start
+        ;;
+status)
+status
+        ;;
+*)
+echo -ne "\033[31m Usage: $prog {start|stop|restart|reload|status} \033[0m\n"
+exit 1
+        ;;
+esac
