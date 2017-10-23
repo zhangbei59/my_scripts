@@ -22,5 +22,5 @@ for i in csrtxt:
 course.close()
 m3u8txt.close()
 
-
+#list.txt文件文件的视频代码是通过点击每一个课程，在返回的json里面vid代码，使用f12查看xhr可以很快找到，暂时没有办法自动获取，需要用到模拟点击
 
