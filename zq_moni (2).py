@@ -13,7 +13,7 @@ key_word='2017年12月2日'
 url="http://www.sac.net.cn/cyry/kspt/kscjcx/"
 
 sender = 'zhangbei@58kuyun.com'
-my_pass= 'Es8NX4EP9JcecRjx'
+my_pass= 'youpass'
 receiver='402151718@qq.com'
 
 def mail():
