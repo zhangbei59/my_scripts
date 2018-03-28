@@ -1,0 +1,74 @@
+#-*- coding:utf-8 -*-
+
+
+import requests
+import pymysql.cursors
+from bs4 import BeautifulSoup
+
+def get_effect_data(data):
+    results = list()
+    soup = BeautifulSoup(data, 'html.parser')
+    projects = soup.find_all('div', class_='repo-list-item')
+    #print(projects)
+    for project in projects:
+        writer_project = project.find('a', attrs={'class': 'v-align-middle'})['href'].strip()
+        #print(writer_project)
+        project_language = project.find('div', attrs={'class': 'd-table-cell col-2 text-gray pt-2'}).get_text().strip()
+        project_starts = project.find('div', attrs={'class': 'col-2 text-right pt-1 pr-3 pt-2'}).get_text().strip()
+        desc = project.find('p', attrs={'class': 'col-9 d-inline-block text-gray mb-2 pr-4'}).get_text().strip()
+        result = (writer_project.split('/')[1], writer_project.split('/')[2], project_language,project_starts,desc)
+        #print(result)
+        results.append(result)
+    return results
+
+#url 获得返回数据，get支持参数化传递，这个参数params就是浏览器地址栏里 s=starts&q=python 这样的参数
+def get_response_data(page):
+    #定义请求的参数，这里为github的搜索页面
+    request_url = 'https://github.com/search'
+    #定义浏览器url地址需要传递的参数
+    params = {'o': 'desc', 'q': 'python', 's': 'stars', 'type': 'Repositories', 'p': page}
+    #使用get函数去请求这个url及参数
+    resp = requests.get(request_url, params)
+    #返回resp对象的text文本内容，使用return不会打印出来打，但是这个函数的结果就是输出txxt内容，后面可以直接使用
+    return resp.text
+def mysql_connect():
+
+    connection = pymysql.connect(host='localhost',
+                                 user='root',
+                                 password='cisco',
+                                 db='github_test',
+                                 charset='utf8mb4',
+                                 cursorclass=pymysql.cursors.DictCursor)
+    return  connection
+
+#定义清空表函数
+def trun_tb():
+    mysql_connect()
+    try:
+        with connection.cursor() as cursor:
+            sql = 'truncate table project_info'
+            cursor.execute(sql)
+            connection.commit()
+    except:
+        connection.close()
+#定义插入数据函数
+def insert_datas(data):
+    try:
+        with connection.cursor() as cursor:
+            sql = 'insert into project_info(project_writer, project_name, project_language, project_starts,description) VALUES (%s, %s, %s, %s, %s)'
+            cursor.executemany(sql, data)
+            connection.commit()
+    except:
+        connection.close()
+
+
+if __name__ == '__main__':
+    total_page = 5 # 需要爬虫爬去数据的总页数
+    datas = list() #定义数据存储为list
+    trun_tb()   #清空表
+    #数据爬取及写入数据库
+    for page in range(total_page):
+        res_data = get_response_data(page + 1)
+        data = get_effect_data(res_data)
+        datas += data
+    insert_datas(datas)
