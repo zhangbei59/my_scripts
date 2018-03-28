@@ -3,6 +3,7 @@
 
 import requests
 import pymysql.cursors
+import re
 from bs4 import BeautifulSoup
 
 def get_effect_data(data):
@@ -16,7 +17,9 @@ def get_effect_data(data):
         project_language = project.find('div', attrs={'class': 'd-table-cell col-2 text-gray pt-2'}).get_text().strip()
         project_starts = project.find('div', attrs={'class': 'col-2 text-right pt-1 pr-3 pt-2'}).get_text().strip()
         desc = project.find('p', attrs={'class': 'col-9 d-inline-block text-gray mb-2 pr-4'}).get_text().strip()
-        result = (writer_project.split('/')[1], writer_project.split('/')[2], project_language,project_starts,desc)
+        sr_href = project.find('a',attrs={'class','v-align-middle'})
+        href = str(re.findall('(https\://[a-zA-Z0-9\.\?/&\=\:]+)',str(sr_href))[0])
+        result = (writer_project.split('/')[1], writer_project.split('/')[2], project_language,project_starts,desc,href)
         #print(result)
         results.append(result)
     return results
@@ -32,7 +35,7 @@ def get_response_data(page):
     #返回resp对象的text文本内容，使用return不会打印出来打，但是这个函数的结果就是输出txxt内容，后面可以直接使用
     return resp.text
 def mysql_connect():
-
+    global  connection
     connection = pymysql.connect(host='localhost',
                                  user='root',
                                  password='cisco',
@@ -55,7 +58,7 @@ def trun_tb():
 def insert_datas(data):
     try:
         with connection.cursor() as cursor:
-            sql = 'insert into project_info(project_writer, project_name, project_language, project_starts,description) VALUES (%s, %s, %s, %s, %s)'
+            sql = 'insert into project_info(project_writer, project_name, project_language, project_starts,description,href) VALUES (%s, %s, %s, %s, %s, %s)'
             cursor.executemany(sql, data)
             connection.commit()
     except:
@@ -63,9 +66,9 @@ def insert_datas(data):
 
 
 if __name__ == '__main__':
-    total_page = 5 # 需要爬虫爬去数据的总页数
+    total_page = 1 # 需要爬虫爬去数据的总页数
     datas = list() #定义数据存储为list
-    trun_tb()   #清空表
+    trun_tb()   #清空
     #数据爬取及写入数据库
     for page in range(total_page):
         res_data = get_response_data(page + 1)
