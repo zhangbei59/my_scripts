@@ -71,3 +71,4 @@ echo -ne "\033[31m Usage: $prog {start|stop|restart|reload|status} \033[0m\n"
 exit 1
         ;;
 esac
+
