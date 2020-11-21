@@ -12,7 +12,7 @@ key_word=['2020-11-22','2020-11-23','2020-11-24']
 #定义监控页面的url
 url="https://zsjy.hnzj.edu.cn/zsxx.htm"
 
-my_pass= 'uhstrurtfflpbhdh'
+my_pass= 'qq邮箱授权码'
 mail_from='402151718@qq.com'
 mail_to='402151718@qq.com'
 
