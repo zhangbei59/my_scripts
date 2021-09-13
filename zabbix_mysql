@@ -1,0 +1,12 @@
+脚本
+
+#!/bin/bash
+
+var=${1^}
+mysql -h"localhost" -P"3306" -e "show global status" -uzbx_monitor -pzabbix_asdf1234  |grep ${var}|awk '{print$2}'
+
+
+
+
+配置
+UserParameter=mysql.[*],/etc/zabbix/zabbix_agentd.d/mysql_vars.sh $1
