@@ -1,0 +1,13 @@
+#!/bin/bash
+#moni_date=$(date +'%Y-%m-%d %H:%M:%S')
+cpu_used=$(top -bcisSn1|grep 'Cpu'|awk '{print $2}')
+log_file_path=/root
+log_name=cpu_moni.log
+if [ `echo " ${cpu_used} > 0"| bc` -eq 1 ];then 
+ echo "负载过高"
+ date +'%Y-%m-%d %H:%M:%S'  >> ${log_file_path}/${log_name}
+ top -bn1|grep mysqld >> ${log_file_path}/${log_name}
+ mysql -uroot -pdljtdb@93#Ad!mN -e 'select * from information_schema.processlist;' >> ${log_file_path}/${log_name}
+else
+ echo "负载正常"
+fi
